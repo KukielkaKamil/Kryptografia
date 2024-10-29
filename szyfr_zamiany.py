@@ -45,7 +45,21 @@ en_text_1 = encrypt('THISISATESTSTRING',key1)
 
 Scorer = ngram.ngram_score('english_bigrams.txt', sep= ' ')
 
-def attack_auto(crypto_text,stalych_liter = 17, attempts = 1000):
+# Lab version (almost :p)
+def attack_auto(crypto_text,stalych_liter = 17):
+    best_score = -99999
+    result = ''
+    tt0 = tm()
+    while tm() - tt0 <5:
+        rand_key = ''.join(list(alf[:stalych_liter]) + random.sample(alf[stalych_liter:],len(alf[stalych_liter:])))
+        decrypted_text = decrypt(crypto_text,rand_key)
+        sc = Scorer.score(decrypted_text)
+        if sc > best_score:
+            best_score, result = sc, decrypted_text
+    return best_score, result
+
+# My version
+def attack_auto2(crypto_text,stalych_liter = 17, attempts = 1000):
     best_score = -99999
     result = ''
     for i in range(attempts):
@@ -57,7 +71,7 @@ def attack_auto(crypto_text,stalych_liter = 17, attempts = 1000):
     return best_score, result
 
 t0 = tm()
-print(attack_auto(en_text_1,17,1000))
+print(attack_auto(en_text_1,17))
 t1 = tm()
 
 print(f'czas {t1-t0} sekund')

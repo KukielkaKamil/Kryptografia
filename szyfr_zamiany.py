@@ -77,21 +77,58 @@ def attackHillClimbing(crypto_text, stalych_liter = 17):
     old_key = get_rand_key(stalych_liter)
     result = ''
     tt0 = tm()
-    while tm() - tt0 <5:
+    iters= 0
+    while tm() - tt0 < 10:
+        iters += 1
         rand_key = change_of_key(old_key,stalych_liter)
         decrypted_text = decrypt(crypto_text,rand_key)
         sc = Scorer.score(decrypted_text)
         if sc > best_score:
             best_score, result, old_key = sc, decrypted_text, rand_key
+            print(best_score, result[:30], old_key, iters)
+    return best_score, result
+
+def shogun_attack(crypto_text, stalych_liter = 17,duration=5,key_time=0.7):
+    results=[]
+    stm= tm()
+    while tm() - stm < duration:
+        results.append(helperAttackHillClimbing(crypto_text,stalych_liter,key_time))
+    results.sort()
+    results.reverse()
+    return results[0]
+        
+def helperAttackHillClimbing(crypto_text, stalych_liter = 17,duration=5):
+    best_score = -99999
+    old_key = get_rand_key(stalych_liter)
+    result = ''
+    tt0 = tm()
+    iters= 0
+    while tm() - tt0 < duration:
+        iters += 1
+        rand_key = change_of_key(old_key,stalych_liter)
+        decrypted_text = decrypt(crypto_text,rand_key)
+        sc = Scorer.score(decrypted_text)
+        if sc > best_score:
+            best_score, result, old_key = sc, decrypted_text, rand_key
+            # print(best_score, result[:30], old_key, iters)
     return best_score, result
 
 key1 = get_rand_key(20,alf)
 
+text = '''
+After World War II, Lubaczów was one of few locations of the Roman Catholic Archdiocese of Lwów to remain within Poland, when the national boundaries were redrawn in 1945. As a result, former parish church in Lubaczow was named a cathedral, and the part of Lwow Archiodiocese, which remained in Poland, was named the Lubaczow Archdiocese, as Communist government banned all traces of Polish presence of the city of Lwow. In 1984, an inventory of the parish records from the archdiocese of the church archive established there was drawn up. In 1992, the position of the Lubaczów area within the Polish diocesan structure was regularized and it became part of the Diocese of Zamość-Lubaczów. There was still a church archive in Lubaczów. In 1999 Lubaczów became part of the Subcarpathian Voivodeship.
+'''
 
-en_text_1 = encrypt('THISISATESTSTRINGTHATISREALLYAWESOME',key1)
+def format_text(input_string:str):
+    formatted_string = input_string.upper()
+    formatted_string = ''.join(char for char in formatted_string if char in alf)
+    return formatted_string
+
+f_text = format_text(text)
+en_text_1 = encrypt(f_text,key1)
 
 t0 = tm()
-print(attackHillClimbing(en_text_1,20))
+print(shogun_attack(en_text_1,0,7,0.823))
 t1 = tm()
 
 print(f'czas {t1-t0} sekund')

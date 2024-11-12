@@ -1,6 +1,5 @@
 
 import random
-from copy import deepcopy
 import ngram
 from time import time as tm
 
@@ -128,7 +127,7 @@ f_text = format_text(text)
 en_text_1 = encrypt(f_text,key1)
 
 t0 = tm()
-print(shogun_attack(en_text_1,0,7,0.823))
+print(shogun_attack(en_text_1,0,15,0.7))
 t1 = tm()
 
 print(f'czas {t1-t0} sekund')

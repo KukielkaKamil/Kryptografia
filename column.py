@@ -44,6 +44,12 @@ def decrypt(text,key):
     return decrypted_text
 
 
+def change_of_key(old_key):
+    key_len = len(old_key)
+    i,j = sorted(random.sample(list(range(0,key_len)),2))
+    key_new = old_key[:i] + [old_key[j]] + old_key[i+1:j] + [old_key[i]] + old_key[j+1:]
+    return key_new
+
 
 
 Scorer = ngram.ngram_score('english_bigrams.txt', sep= ' ')
@@ -57,7 +63,7 @@ def auto_atack(encrypted_text,max_len=8):
     best_score = -99999
     result = ''
     tt0 = tm()
-    while tm() - tt0 <7:
+    while tm() - tt0 <20:
         rand_key_len = random.randint(1,max_len)
         rand_key = get_rand_key(rand_key_len)
         decrypted_text = decrypt(encrypted_text,rand_key)
@@ -67,6 +73,12 @@ def auto_atack(encrypted_text,max_len=8):
     return best_score, result
 
 # TO DO
+def inverse_key(key:list):
+    return key.reverse()
+
+# def shift_key(key):
+
+
 # def change_key_full(key):
 #     r = random.random()
 #     r_probs=[0.005, 0.035, 0.03, 0.003, 0.1, 0.02, 0.02, 0.02, 0.01, 0.01, 0.72]
@@ -93,30 +105,65 @@ def auto_atack(encrypted_text,max_len=8):
 #     else:
 #         return swap_2(key)
 
+# def change_of_key(key):
+#     return change_key_full(key)
+
 # Testin encryption
 formated_text = format_text(text)
-test_key = get_rand_key(5)
+test_key = get_rand_key(10)
 encrypted_text = encrypt(formated_text,test_key)
 print(encrypted_text[:40])
 # decrypted_text = decrypt(encrypted_text,[5,0,3,1,2,4])
 # print(decrypted_text[:40])
-auto_atack_decrypted_text = auto_atack(encrypted_text,12)
+# auto_atack_decrypted_text = auto_atack(encrypted_text,12)
+# print(auto_atack_decrypted_text[:40])
+
+# print(test_key)
+# new_key = change_of_key(test_key)
+# print(new_key)
+
+def attackHillClimbing(crypto_text, key_length = 10):
+    best_score = -99999
+    old_key = get_rand_key(key_length)
+    result = ''
+    tt0 = tm()
+    iters= 0
+    while tm() - tt0 < 5:
+        iters += 1
+        rand_key = change_of_key(old_key)
+        decrypted_text = decrypt(crypto_text,rand_key)
+        sc = Scorer.score(decrypted_text)
+        # print(f'All iterations: {iters} Current score: {sc}, Current key: {rand_key}')
+        if sc > best_score:
+            best_score, result, old_key = sc, decrypted_text, rand_key
+            print(best_score, result[:30], old_key, iters)
+    return best_score, result
+
+
+def helperAttackHillClimbing(crypto_text, key_length = 10,duration=5):
+    best_score = -99999
+    old_key = get_rand_key(key_length)
+    result = ''
+    tt0 = tm()
+    iters= 0
+    while tm() - tt0 < duration:
+        iters += 1
+        rand_key = change_of_key(old_key)
+        decrypted_text = decrypt(crypto_text,rand_key)
+        sc = Scorer.score(decrypted_text)
+        if sc > best_score:
+            best_score, result, old_key = sc, decrypted_text, rand_key
+            # print(best_score, result[:30], old_key, iters)
+    return best_score, result
+
+def shogun_attack(crypto_text, key_length = 17,duration=5,key_time=0.7):
+    results=[]
+    stm= tm()
+    while tm() - stm < duration:
+        results.append(helperAttackHillClimbing(crypto_text,key_length,key_time))
+    results.sort()
+    results.reverse()
+    return results[0]
+
+auto_atack_decrypted_text = shogun_attack(encrypted_text,10,5,0.3)
 print(auto_atack_decrypted_text[:40])
-
-# def attackHillClimbing(crypto_text, key_length = 17):
-#     best_score = -99999
-#     old_key = get_rand_key(stalych_liter)
-#     result = ''
-#     tt0 = tm()
-#     iters= 0
-#     while tm() - tt0 < 10:
-#         iters += 1
-#         rand_key = change_of_key(old_key,stalych_liter)
-#         decrypted_text = decrypt(crypto_text,rand_key)
-#         sc = Scorer.score(decrypted_text)
-#         if sc > best_score:
-#             best_score, result, old_key = sc, decrypted_text, rand_key
-#             print(best_score, result[:30], old_key, iters)
-#     return best_score, result
-
-

@@ -1,7 +1,7 @@
 from itertools import product
 alfabet2='abcdefghijklmnopqrstuvwxyz'
 alfabet='ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-nlength = 4
+nlength = 2
 with open('book6.txt', encoding='utf-8') as f:
     book = f.read()
 book2 = ''.join( [x for x in book if x.isalpha() and x in alfabet ] ).upper() #Change to lower() if you want to use alfabet2
